@@ -36,10 +36,11 @@ class Operations
         List<Point> allPoints = new List<Point>();
         StreamReader reader = new StreamReader(path);
         uint i = 0;
+        const double meterToFeetRatio = 3.2808399;
         while (!reader.EndOfStream)
         {
             var coordinates = reader.ReadLine().Split(",");
-            Point currentPoint = new Point(i, Convert.ToDouble(coordinates[0]), Convert.ToDouble(coordinates[1]), Convert.ToDouble(coordinates[2]));
+            Point currentPoint = new Point(i, Convert.ToDouble(coordinates[0]) * meterToFeetRatio, Convert.ToDouble(coordinates[1]) * meterToFeetRatio, Convert.ToDouble(coordinates[2]) * meterToFeetRatio);
             allPoints.Add(currentPoint);
             i += 1;
         }
@@ -100,11 +101,11 @@ class Operations
             if (graph[axisY[i]][axisX[i]].Equals(" "))
             {
                 graph[axisY[i]][axisX[i]] = "+";
-                graph[axisY[i] + 1][axisX[i]] = $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
+                graph[axisY[i] + 1][axisX[i]] = $"({allPoints[i].X.ToString("0.0")},{allPoints[i].Y.ToString("0.0")},{allPoints[i].Z.ToString("0.0")})";
             }
             else
             {
-                graph[axisY[i] + 1][axisX[i]] += $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
+                graph[axisY[i] + 1][axisX[i]] += $"({allPoints[i].X.ToString("0.0")},{allPoints[i].Y.ToString("0.0")},{allPoints[i].Z.ToString("0.0")})";
             }
         }
         graph[axisY[0]][axisX[0]] = "=";
@@ -135,7 +136,7 @@ class Operations
                 {
                     for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1)
                     {
-                        graph[j][(int)axisX[i] + 2 + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = "\\";
+                        graph[j][(int)axisX[i] + 1 + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = "\\";
                     }
                 }
                 else
@@ -183,13 +184,13 @@ class Operations
             for (int j = 0; j < graph[i].Length; j += 1)
             {
                 writer.Write(graph[i][j]);
-                if (graph[i][j].Equals(" ") | graph[i][j].Equals("/") | graph[i][j].Equals("\\") | graph[i][j].Equals("-"))
+                if (graph[i][j].Equals(" ") | graph[i][j].Equals("/") | graph[i][j].Equals("\\") | graph[i][j].Equals("-") | graph[i][j].Equals("+"))
                 {
                     continue;
                 }
                 else
                 {
-                    j += graph[i][j].Length;
+                    j += graph[i][j].Length - 1;
                 }
             }
             writer.WriteLine();
@@ -204,10 +205,10 @@ class Program
     {
         double zoom = 0.5;
         uint fileNumber = 1;
-        for (fileNumber = 3; fileNumber <= 3; fileNumber += 1)
+        for (fileNumber = 1; fileNumber <= 5; fileNumber += 1)
         {
             List<Point> allPoints = Operations.ReadData(fileNumber);
-            string[] components = { "Top" };
+            string[] components = { "Front", "Left", "Top" };
             foreach (string component in components)
             {
                 Operations.PrintGraph(fileNumber, component, Operations.ComputeGraph(allPoints, component, zoom));
