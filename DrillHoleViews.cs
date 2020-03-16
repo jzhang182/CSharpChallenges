@@ -85,8 +85,7 @@ class Operations
             axisX[i] = axisX[i] - axisX.Min();
             axisY[i] = axisY[i] - axisY.Min();
         }
-
-        string[][] graph = new string[axisY.Max() + 1][];
+        string[][] graph = new string[axisY.Max() + 2][];
         for (int i = 0; i < graph.Length; i += 1)
         {
             graph[i] = new string[axisX.Max() + 1];
@@ -100,13 +99,16 @@ class Operations
         {
             if (graph[axisY[i]][axisX[i]].Equals(" "))
             {
-                graph[axisY[i]][axisX[i]] = "+ " + $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
+                graph[axisY[i]][axisX[i]] = "+";
+                graph[axisY[i] + 1][axisX[i]] = $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
             }
             else
             {
-                graph[axisY[i]][axisX[i]] += $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
+                graph[axisY[i] + 1][axisX[i]] += $"({allPoints[i].X},{allPoints[i].Y},{allPoints[i].Z})";
             }
         }
+        graph[axisY[0]][axisX[0]] = "=";
+        graph[axisY[allPoints.Count - 1]][axisX[allPoints.Count - 1]] = "#";
         //draw line between conjunctive points
         for (int i = 0; i < allPoints.Count - 1; i += 1)
         {
@@ -114,14 +116,17 @@ class Operations
             {
                 if (axisY[i] != axisY[i + 1])
                 {
-                    for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1) { graph[j][axisX[i]] = "|"; }
+                    for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1)
+                    {
+                        graph[j][axisX[i]] = "|";
+                    }
                 }
             }
             else if (axisX[i] < axisX[i + 1])
             {
                 if (axisY[i] == axisY[i + 1])
                 {
-                    for (int j = axisX[i + 1]; j > axisX[i] && graph[axisY[i]][j] == " "; j -= 1)
+                    for (int j = axisX[i + 1] - 1; j > axisX[i]; j -= 1)
                     {
                         graph[axisY[i]][j] = "-";
                     }
@@ -130,14 +135,14 @@ class Operations
                 {
                     for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1)
                     {
-                        graph[j][(int)axisX[i] + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = @"\";
+                        graph[j][(int)axisX[i] + 2 + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = "\\";
                     }
                 }
                 else
                 {
                     for (int j = axisY[i + 1] + 1; j < axisY[i]; j += 1)
                     {
-                        graph[j][(int)axisX[i + 1] - (j - axisY[i + 1] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i] - axisY[i + 1])] = @"/";
+                        graph[j][(int)axisX[i + 1] - 1 - (j - axisY[i + 1] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i] - axisY[i + 1])] = "/";
                     }
                 }
             }
@@ -145,7 +150,7 @@ class Operations
             {
                 if (axisY[i] == axisY[i + 1])
                 {
-                    for (int j = axisX[i + 1]; j > axisX[i] && graph[axisY[i]][j] == " "; j -= 1)
+                    for (int j = axisX[i + 1]; j > axisX[i]; j -= 1)
                     {
                         graph[axisY[i]][j] = "-";
                     }
@@ -154,14 +159,14 @@ class Operations
                 {
                     for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1)
                     {
-                        graph[j][(int)axisX[i] + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = @"/";
+                        graph[j][(int)axisX[i] - 1 + (j - axisY[i] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i + 1] - axisY[i])] = "/";
                     }
                 }
                 else
                 {
                     for (int j = axisY[i + 1] + 1; j < axisY[i]; j += 1)
                     {
-                        graph[j][(int)axisX[i + 1] - (j - axisY[i + 1] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i] - axisY[i + 1])] = @"\";
+                        graph[j][(int)axisX[i + 1] + 1 - (j - axisY[i + 1] - 1) * (axisX[i + 1] - axisX[i]) / (axisY[i] - axisY[i + 1])] = "\\";
                     }
                 }
             }
@@ -177,13 +182,13 @@ class Operations
         {
             for (int j = 0; j < graph[i].Length; j += 1)
             {
-                if (graph[i][j].Equals(" "))
+                writer.Write(graph[i][j]);
+                if (graph[i][j].Equals(" ") | graph[i][j].Equals("/") | graph[i][j].Equals("\\") | graph[i][j].Equals("-"))
                 {
-                    writer.Write(" ");
+                    continue;
                 }
                 else
                 {
-                    writer.Write(graph[i][j]);
                     j += graph[i][j].Length;
                 }
             }
@@ -199,11 +204,10 @@ class Program
     {
         double zoom = 0.5;
         uint fileNumber = 1;
-
-        for (fileNumber = 1; fileNumber <= 5; fileNumber += 1)
+        for (fileNumber = 3; fileNumber <= 3; fileNumber += 1)
         {
             List<Point> allPoints = Operations.ReadData(fileNumber);
-            string[] components = { "Front", "Left", "Top" };
+            string[] components = { "Top" };
             foreach (string component in components)
             {
                 Operations.PrintGraph(fileNumber, component, Operations.ComputeGraph(allPoints, component, zoom));
