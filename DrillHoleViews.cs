@@ -119,7 +119,8 @@ class Operations
                 {
                     for (int j = axisY[i] + 1; j < axisY[i + 1]; j += 1)
                     {
-                        graph[j][axisX[i]] = "|";
+                        if (graph[j][axisX[i]].Equals(" "))
+                            graph[j][axisX[i]] = "|";
                     }
                 }
             }
